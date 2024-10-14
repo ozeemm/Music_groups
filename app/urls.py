@@ -16,7 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include
+
+from music_groups import views
+from music_groups.api import *
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("groups", GroupsViewset, basename="groups")
+router.register("members", MembersViewset, basename="members")
+router.register("albums", AlbumsViewset, basename="albums")
+router.register("songs", SongsViewset, basename="songs")
+router.register("genres", GenresViewset, basename="genres")
 
 urlpatterns = [
+    path('', views.ShowGroupsView.as_view()),
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls))
 ]
