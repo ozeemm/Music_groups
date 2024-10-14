@@ -13,7 +13,7 @@ class Group(models.Model):
 
 class Member(models.Model):
     name = models.TextField("Имя")
-    group = models.ForeignKey("Group", on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     role = models.TextField("Роль в группе")
 
     class Meta:
@@ -23,8 +23,8 @@ class Member(models.Model):
 class Album(models.Model):
     name = models.TextField("Название")
     year = models.IntegerField("Год релиза")
-    group = models.ForeignKey("Group", on_delete=models.CASCADE, null=True)
-    genre = models.ForeignKey("Genre", on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
+    genre = models.ForeignKey("Genre", verbose_name="Жанр", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Альбом"
@@ -35,7 +35,7 @@ class Album(models.Model):
 
 class Song(models.Model):
     name = models.TextField("Название")
-    album = models.ForeignKey("Album", on_delete=models.CASCADE, null=True)
+    album = models.ForeignKey("Album", verbose_name="Альбом", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Песня"
