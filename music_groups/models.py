@@ -18,7 +18,7 @@ class Member(models.Model):
 
     class Meta:
         verbose_name = "Участник группы"
-        verbose_name_plural = "Участнки группы"
+        verbose_name_plural = "Участнки групп"
 
 class Album(models.Model):
     name = models.TextField("Название")
