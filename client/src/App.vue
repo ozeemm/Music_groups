@@ -1,6 +1,7 @@
 <script setup>
     import { computed, onBeforeMount, ref } from 'vue'
     import axios from 'axios'
+    import Cookies from 'js-cookie';
 
     const members = ref([])
     const groups = ref([])
@@ -24,11 +25,6 @@
 
     async function onMemberAdd(){
         await axios.post("/api/members/", memberToAdd.value)
-        // await axios.post("/api/members/", {
-        //     name: "test",
-        //     role: "test too",
-        //     group: 1
-        // })
         await fetchMembers()
     }
 
@@ -53,6 +49,7 @@
 
     // Сработает при запуске приложения
     onBeforeMount(async () => {
+        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchMembers()
         await fetchGroups()
     })
@@ -140,8 +137,6 @@
                 </div>
             </div>
         </div>
-
-        <button @click="onLoadClick">Загрузить</button>
     </div>
 </template>
 
