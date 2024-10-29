@@ -40,7 +40,8 @@
         const formData = new FormData()
 
         // "Введённый" файл
-        formData.append('image', albumImageRef.value.files[0])
+        if(albumImageRef.value.files[0] != null)
+            formData.append('image', albumImageRef.value.files[0])
 
         formData.set('name', albumToAdd.value.name)
         formData.set('year', albumToAdd.value.year)
@@ -71,9 +72,10 @@
 
     async function onEditSubmitClick(album) {
         const formData = new FormData()
-        
+
         // "Введённый" файл
-        formData.append('image', albumEditImageRef.value.files[0])
+        if(albumEditImageRef.value != null)
+            formData.append('image', albumEditImageRef.value.files[0])
 
         formData.set('name', albumToEdit.value.name)
         formData.set('year', albumToEdit.value.year)
@@ -93,6 +95,7 @@
 
     function onEditCancelClick(){
         albumToEdit.value = {}
+        albumEditImageRef.value = null
     }
 
     async function albumAddImageChange(){
@@ -218,7 +221,7 @@
                     </div>
 
                     <div class="col-auto">
-                        <input class="form-control" type="file" ref="albumEditImageRef" @change="albumEditImageChange">
+                        <input class="form-control" type="file" @change="albumEditImageChange">
                     </div>
                     <div class="col-auto">
                         <img :src="albumToEdit.image" style="max-height: 60px;" alt="" @click="imageClick(albumToEdit)">
