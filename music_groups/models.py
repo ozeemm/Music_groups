@@ -25,6 +25,7 @@ class Album(models.Model):
     year = models.IntegerField("Год релиза")
     group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     genre = models.ForeignKey("Genre", verbose_name="Жанр", on_delete=models.CASCADE, null=True)
+    image = models.ImageField("Обложка", null=True, upload_to="music_groups")
 
     class Meta:
         verbose_name = "Альбом"

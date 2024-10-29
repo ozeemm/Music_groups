@@ -2,6 +2,7 @@
     import { computed, onBeforeMount, ref } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
+    import {Modal} from 'bootstrap/dist/js/bootstrap'
 
     const albums = ref([])
     const groups = ref([])
@@ -9,6 +10,12 @@
 
     const albumToAdd = ref({})
     const albumToEdit = ref({})
+
+    const albumImageRef = ref()
+    const albumEditImageRef = ref() // Тут будет массив, так как input создаётся в for
+
+    const imageModal = ref()
+    const modalImageObj = ref({})
 
     async function fetchAlbums(){
         const r = await axios.get("/api/albums/")
@@ -30,7 +37,22 @@
     }
 
     async function onAlbumAdd(){
-        await axios.post("/api/albums/", albumToAdd.value)
+        const formData = new FormData()
+
+        // "Введённый" файл
+        formData.append('image', albumImageRef.value.files[0])
+
+        formData.set('name', albumToAdd.value.name)
+        formData.set('year', albumToAdd.value.year)
+        formData.set('group', albumToAdd.value.group)
+        formData.set('genre', albumToAdd.value.genre)
+
+        // Указываем в заголовке, что отправляем данные с файлом
+        await axios.post("/api/albums/", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
         await fetchAlbums()
     }
 
@@ -43,18 +65,43 @@
         albumToEdit.value = { 
             ...album, 
             group: album.group.id, 
-            genre: album.genre.id 
+            genre: album.genre.id
         }
     }
 
     async function onEditSubmitClick(album) {
-        await axios.put(`/api/albums/${album.id}/`, albumToEdit.value)
+        const formData = new FormData()
+        
+        // "Введённый" файл
+        formData.append('image', albumEditImageRef.value.files[0])
+
+        formData.set('name', albumToEdit.value.name)
+        formData.set('year', albumToEdit.value.year)
+        formData.set('group', albumToEdit.value.group)
+        formData.set('genre', albumToEdit.value.genre)
+
+        // Указываем в заголовке, что отправляем данные с файлом
+        await axios.put(`/api/albums/${album.id}/`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+
         albumToEdit.value = {}
         await fetchAlbums()
     }
 
     function onEditCancelClick(){
         albumToEdit.value = {}
+    }
+
+    async function albumAddImageChange(){
+        albumToAdd.value.image = URL.createObjectURL(albumImageRef.value.files[0])
+    }
+    
+    async function albumEditImageChange(event){
+        albumEditImageRef.value.files = event.target.files
+        albumToEdit.value.image = URL.createObjectURL(albumEditImageRef.value[0].files[0])
     }
 
     // Сработает при запуске приложения
@@ -64,6 +111,15 @@
         await fetchGroups()
         await fetchGenres()
     })
+
+    function imageClick(album){
+        const modal = new Modal(imageModal.value)
+
+        modalImageObj.value.name = album.name
+        modalImageObj.value.imageUrl = album.image
+
+        modal.show()
+    }
 
 </script>
 
@@ -98,6 +154,13 @@
                     <label>Жанр</label>
                 </div>
             </div>
+            <div class="col-auto">
+                <input class="form-control" type="file" ref="albumImageRef" @change="albumAddImageChange">
+            </div>
+            <div class="col-auto">
+                <img :src="albumToAdd.image" style="max-height: 60px;" alt="" @click="imageClick(albumToAdd)">
+            </div>
+
             <div class="col-auto mt-auto mb-auto">
                 <button class="btn btn-primary" @click="onAlbumAdd()">
                     <i class="bi bi-plus-square"></i>
@@ -106,12 +169,15 @@
         </div>
 
         <div v-for="album in albums">
-            <!-- Отображение участников -->
+            <!-- Отображение альбомов -->
             <div v-if="album.id != albumToEdit.id" class="item">
                 <span>{{ album.name }}</span>
                 <span>{{ album.year }}</span> 
                 <span>{{ album.group.name }}</span>
                 <span>{{ album.genre.name }}</span>
+                <span v-if="album.image" v-show="album.image">
+                    <img :src="album.image" style="max-height: 60px" @click="imageClick(album)">
+                </span>
                 <button @click="onEditClick(album)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>
@@ -119,7 +185,7 @@
                     <i class="bi bi-trash3-fill"></i>
                 </button>
             </div>
-            <!-- Отображение области редактирования участника -->
+            <!-- Отображение области редактирования альбома -->
             <div v-else>
                 <div class="row">
                     <div class="col">
@@ -150,6 +216,13 @@
                             <label>Жанр</label>
                         </div>
                     </div>
+
+                    <div class="col-auto">
+                        <input class="form-control" type="file" ref="albumEditImageRef" @change="albumEditImageChange">
+                    </div>
+                    <div class="col-auto">
+                        <img :src="albumToEdit.image" style="max-height: 60px;" alt="" @click="imageClick(albumToEdit)">
+                    </div>
                     <div class="col-auto mt-auto mb-auto">
                         <button class="btn btn-success" @click="onEditSubmitClick(album)">
                             <i class="bi bi-check-lg"></i>
@@ -162,6 +235,21 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" ref="imageModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="width: auto">
+                <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
+            </div>
+            </div>
+        </div>
         </div>
     </div>
 </template>
