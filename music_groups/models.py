@@ -16,16 +16,27 @@ class Member(models.Model):
     group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     role = models.TextField("Роль в группе")
 
+    def __str__(self) -> str:
+        return self.name
+
     class Meta:
         verbose_name = "Участник группы"
         verbose_name_plural = "Участнки групп"
+
+class MemberImage(models.Model):
+    member = models.ForeignKey("Member", verbose_name="Участник", on_delete=models.CASCADE, null=True)
+    image = models.ImageField("Фотография", null=True, blank=True, upload_to="music_groups/members")
+
+    class Meta:
+        verbose_name = "Фотография участника"
+        verbose_name_plural = "Фотографии участников"
 
 class Album(models.Model):
     name = models.TextField("Название")
     year = models.IntegerField("Год релиза")
     group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     genre = models.ForeignKey("Genre", verbose_name="Жанр", on_delete=models.CASCADE, null=True)
-    image = models.ImageField("Обложка", null=True, upload_to="music_groups")
+    image = models.ImageField("Обложка", null=True, blank=True, upload_to="music_groups/albums")
 
     class Meta:
         verbose_name = "Альбом"

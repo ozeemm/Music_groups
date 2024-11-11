@@ -1,30 +1,55 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue'
+    import { computed, onBeforeMount, ref, toRaw } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
 
     const members = ref([])
+    const memberImages = ref([])
     const groups = ref([])
 
     const memberToAdd = ref({})
+    const memberImagesToAdd = ref([])
+    const memberAddImageRef = ref()
     const memberToEdit = ref({})
+    const memberImagesToEdit = ref({})
 
     async function fetchMembers(){
         const r = await axios.get("/api/members/")
         members.value = r.data
+
     }
 
     async function fetchGroups(){
         const r = await axios.get("/api/groups/")
         groups.value = r.data
+        await fetchMemberImages()
     }
 
-    async function onLoadClick(){
-        await fetchMembers()
+    async function fetchMemberImages(){
+        const r = await axios.get("/api/member_images/")
+        memberImages.value = r.data
     }
 
     async function onMemberAdd(){
-        await axios.post("/api/members/", memberToAdd.value)
+        const formData = new FormData()
+        for(let i = 0; i < memberImagesToAdd.value.length; i++){
+            formData.append(`image[${i}]`, memberImagesToAdd.value[i].file)
+        }
+
+        formData.append('name', memberToAdd.value["name"])
+        formData.append('role', memberToAdd.value["role"])
+        formData.append('group', memberToAdd.value["group"])
+        
+        for (var pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]); 
+        }
+
+        await axios.post(`/api/members/`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+
         await fetchMembers()
     }
 
@@ -45,6 +70,25 @@
 
     function onEditCancelClick(){
         memberToEdit.value = {}
+    }
+
+    function memberAddImageChange(){
+        for(let i = 0; i < memberAddImageRef.value.files.length; i++){
+            const obj = { file: memberAddImageRef.value.files[i], url: URL.createObjectURL(memberAddImageRef.value.files[i]) }
+            memberImagesToAdd.value.push(obj)
+        }
+    }
+
+    function memberAddImageDelete(index){
+        memberImagesToAdd.value.splice(index, 1)
+    }
+
+    function memberImagesById(id){
+        return toRaw(memberImages.value).filter(obj => obj.member == id)
+    }
+
+    function imageClick(){
+        console.log(`Clicked on image`)
     }
 
     // Сработает при запуске приложения
@@ -79,19 +123,34 @@
                     <label>Группа</label>
                 </div>
             </div>
+            <div class="col-auto">
+                <input class="form-control" type="file" multiple="multiply" ref="memberAddImageRef" @change="memberAddImageChange">
+            </div>
             <div class="col-auto mt-auto mb-auto">
                 <button class="btn btn-primary" @click="onMemberAdd()">
                     <i class="bi bi-person-plus-fill"></i>
                 </button>
+            </div>
+            <div class="row mt-2">
+                <div v-for="(image, index) in memberImagesToAdd" class="col-auto">
+                    <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick()">
+                    <button class="btn btn-danger imageDeleteButton" @click="memberAddImageDelete(index)">
+                            <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
         <div v-for="member in members">
             <!-- Отображение участников -->
             <div v-if="member.id != memberToEdit.id" class="item">
+                
                 <span>{{ member.name }}</span>
                 <span>{{ member.role }}</span> 
                 <span>{{ member.group.name }}</span>
+                <div v-for="image in memberImages">
+                    <img v-if="image.member == member.id" :src="image.image" style="max-height: 60px;" alt="" @click="imageClick()">
+                </div>
                 <button @click="onEditClick(member)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>
@@ -139,4 +198,10 @@
 </template>
 
 <style scoped>
+.imageDeleteButton{
+    position: relative;
+    top: -25px;
+    right: 25px;
+    transform: scale(0.6);
+}
 </style>

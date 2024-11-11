@@ -10,6 +10,10 @@ class GroupAdmin(admin.ModelAdmin):
 class MemberAdmin(admin.ModelAdmin):
     list_display = ["name", "group", "role"]
 
+@admin.register(MemberImage)
+class MemberImageAdmin(admin.ModelAdmin):
+    list_display = ["member", "image"]
+
 @admin.register(Album)
 class AlbumAdmin(admin.ModelAdmin):
     list_display = ["name", "year", "group", "genre"]

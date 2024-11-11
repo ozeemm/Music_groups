@@ -30,6 +30,8 @@ router.register("members", MembersViewset, basename="members")
 router.register("albums", AlbumsViewset, basename="albums")
 router.register("songs", SongsViewset, basename="songs")
 router.register("genres", GenresViewset, basename="genres")
+router.register("member_images", MemberImagesViewset, basename="member_images")
+router.register("user", UserProfileViewset, basename="user")
 
 urlpatterns = [
     path('', views.ShowGroupsView.as_view()),

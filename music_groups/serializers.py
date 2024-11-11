@@ -20,6 +20,12 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         model = Member
         fields = "__all__"
 
+# Member Image
+class MemberImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemberImage
+        fields = "__all__"
+
 # Album
 class AlbumListSerializer(serializers.ModelSerializer):
     group = GroupSerializer(read_only=True)

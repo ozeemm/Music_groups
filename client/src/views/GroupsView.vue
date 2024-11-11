@@ -8,6 +8,8 @@
     const groupToAdd = ref({})
     const groupToEdit = ref({})
 
+    const userInfo = ref({})
+
     async function fetchGroups(){
         const r = await axios.get("/api/groups/")
         groups.value = r.data
@@ -37,15 +39,22 @@
         groupToEdit.value = {}
     }
 
+    async function getUserInfo(){
+        const r = await axios.get(`/api/user/info/`)
+        userInfo.value = r.data
+    }
+
     // Сработает при запуске приложения
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchGroups()
+        await getUserInfo()
     })
 
 </script>
 
 <template>
+    {{ userInfo }}
     <div class="p-3">
         <div class="row">
             <div class="col">
