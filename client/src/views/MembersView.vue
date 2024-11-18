@@ -2,6 +2,7 @@
     import { computed, onBeforeMount, ref, toRaw } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
+    import { Modal } from 'bootstrap/dist/js/bootstrap'
 
     const members = ref([])
     const memberImages = ref([])
@@ -13,6 +14,9 @@
 
     const memberToEdit = ref({})
     const memberEditImageRef = ref()
+
+    const imageModal = ref()
+    const modalImageObj = ref({})
 
     // Fetch data
     async function fetchMembers(){
@@ -134,14 +138,18 @@
         await fetchGroups()
     })
  
-    function imageClick(){
-        console.log(`Clicked on image`)
+    function imageClick(name, imageUrl){
+        const modal = new Modal(imageModal.value)
+
+        modalImageObj.value.name = name
+        modalImageObj.value.imageUrl = imageUrl
+
+        modal.show()
     }
 
 </script>
 
 <template>
-    {{ memberToEdit }}
     <div class="p-3">
         <div class="row">
             <div class="col">
@@ -174,7 +182,7 @@
             </div>
             <div class="row mt-2">
                 <div v-for="(image, index) in memberImagesToAdd" class="col-auto">
-                    <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick()">
+                    <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick(memberToAdd.name, image.url)">
                     <button class="btn btn-danger imageDeleteButton" @click="memberAddImageDelete(index)">
                             <i class="bi bi-x-lg"></i>
                     </button>
@@ -190,7 +198,7 @@
                 <span>{{ member.role }}</span> 
                 <span>{{ member.group.name }}</span>
                 <div v-for="image in memberImages">
-                    <img v-if="image.member == member.id" :src="image.image" style="max-height: 60px;" alt="" @click="imageClick()">
+                    <img v-if="image.member == member.id" :src="image.image" style="max-height: 60px;" alt="" @click="imageClick(member.name, image.image)">
                 </div>
                 <button @click="onEditClick(member)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
@@ -239,17 +247,32 @@
                         <input class="form-control" type="file" multiple="multiply" ref="memberEditImageRef" @change="memberEditImageChange">
                     </div>
                     <div v-for="image in memberToEdit.images" class="col-auto">
-                        <img :src="image.image" style="max-height: 60px;" alt="" @click="imageClick()">
+                        <img :src="image.image" style="max-height: 60px;" alt="" @click="imageClick(memberToEdit.name, image.image)">
                         <button class="btn btn-danger imageDeleteButton" @click="memberEditImageDeleteExisting(image)">
                                 <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
                     <div v-for="(image, index) in memberToEdit.imagesToAdd" class="col-auto">
-                        <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick()">
-                        <button class="btn btn-danger imageDeleteButton" @click="memberEditImageDeleteAdded(index)">
+                        <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick(memberToEdit.name, image.url)">
+                        <button class="btn btn-danger imageDeleteButton" @click="memberEditImageDeleteAdded()">
                                 <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" ref="imageModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="width: auto">
+                    <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
+                </div>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
     import { computed, onBeforeMount, ref } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
-    import {Modal} from 'bootstrap/dist/js/bootstrap'
+    import { Modal } from 'bootstrap/dist/js/bootstrap'
 
     const albums = ref([])
     const groups = ref([])
@@ -242,17 +242,17 @@
 
         <!-- Image Modal -->
         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" ref="imageModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="width: auto">
+                    <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
+                </div>
+                </div>
             </div>
-            <div class="modal-body" style="width: auto">
-                <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
-            </div>
-            </div>
-        </div>
         </div>
     </div>
 </template>
