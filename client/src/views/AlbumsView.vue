@@ -1,8 +1,9 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue'
+    import { onBeforeMount, ref, useTemplateRef } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
-    import { Modal } from 'bootstrap/dist/js/bootstrap'
+
+    import ImageModal from '@/components/ImageModal.vue';
 
     const albums = ref([])
     const groups = ref([])
@@ -14,7 +15,7 @@
     const albumImageRef = ref()
     const albumEditImageRef = ref() // Тут будет массив, так как input создаётся в for
 
-    const imageModal = ref()
+    const imageModalRef = useTemplateRef('imageModalRef')
     const modalImageObj = ref({})
 
     async function fetchAlbums(){
@@ -30,10 +31,6 @@
     async function fetchGenres(){
         const r = await axios.get("/api/genres/")
         genres.value = r.data
-    }
-
-    async function onLoadClick(){
-        await fetchAlbums()
     }
 
     async function onAlbumAdd(){
@@ -116,12 +113,10 @@
     })
 
     function imageClick(album){
-        const modal = new Modal(imageModal.value)
-
         modalImageObj.value.name = album.name
         modalImageObj.value.imageUrl = album.image
-
-        modal.show()
+        
+        imageModalRef.value.show()
     }
 
 </script>
@@ -240,20 +235,7 @@
             </div>
         </div>
 
-        <!-- Image Modal -->
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" ref="imageModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="width: auto">
-                    <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
-                </div>
-                </div>
-            </div>
-        </div>
+        <image-modal :title="modalImageObj.name" :image="modalImageObj.imageUrl" ref="imageModalRef"/>
     </div>
 </template>
 

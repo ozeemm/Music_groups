@@ -1,8 +1,9 @@
 <script setup>
-    import { computed, onBeforeMount, ref, toRaw } from 'vue'
+    import { onBeforeMount, ref, toRaw, useTemplateRef } from 'vue'
     import axios from 'axios'
-    import Cookies from 'js-cookie';
-    import { Modal } from 'bootstrap/dist/js/bootstrap'
+    import Cookies from 'js-cookie'
+
+    import ImageModal from '@/components/ImageModal.vue'
 
     const members = ref([])
     const memberImages = ref([])
@@ -15,7 +16,7 @@
     const memberToEdit = ref({})
     const memberEditImageRef = ref()
 
-    const imageModal = ref()
+    const imageModalRef = useTemplateRef('imageModalRef')
     const modalImageObj = ref({})
 
     // Fetch data
@@ -139,14 +140,11 @@
     })
  
     function imageClick(name, imageUrl){
-        const modal = new Modal(imageModal.value)
-
         modalImageObj.value.name = name
         modalImageObj.value.imageUrl = imageUrl
 
-        modal.show()
+        imageModalRef.value.show()
     }
-
 </script>
 
 <template>
@@ -262,20 +260,7 @@
             </div>
         </div>
 
-        <!-- Image Modal -->
-        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" ref="imageModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">{{ modalImageObj.name }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="width: auto">
-                    <img :src="modalImageObj.imageUrl" style="object-fit: cover" width="100%">
-                </div>
-                </div>
-            </div>
-        </div>
+        <image-modal :title="modalImageObj.name" :image="modalImageObj.imageUrl" ref="imageModalRef"/>
     </div>
 </template>
 
