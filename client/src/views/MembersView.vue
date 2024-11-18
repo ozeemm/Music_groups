@@ -10,19 +10,20 @@
     const memberToAdd = ref({})
     const memberImagesToAdd = ref([])
     const memberAddImageRef = ref()
-    const memberToEdit = ref({})
-    const memberImagesToEdit = ref({})
 
+    const memberToEdit = ref({})
+    const memberEditImageRef = ref()
+
+    // Fetch data
     async function fetchMembers(){
         const r = await axios.get("/api/members/")
         members.value = r.data
-
+        await fetchMemberImages()
     }
 
     async function fetchGroups(){
         const r = await axios.get("/api/groups/")
         groups.value = r.data
-        await fetchMemberImages()
     }
 
     async function fetchMemberImages(){
@@ -30,46 +31,24 @@
         memberImages.value = r.data
     }
 
+    // Create
     async function onMemberAdd(){
-        const formData = new FormData()
-        for(let i = 0; i < memberImagesToAdd.value.length; i++){
-            formData.append(`image[${i}]`, memberImagesToAdd.value[i].file)
+        const r = await axios.post(`/api/members/`, memberToAdd.value)
+        const id = r.data.id
+
+        for(let image of memberImagesToAdd.value){
+            const formData = new FormData()
+            formData.append('member', id)
+            formData.append('image', image.file)
+
+            await axios.post(`/api/member_images/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
         }
 
-        formData.append('name', memberToAdd.value["name"])
-        formData.append('role', memberToAdd.value["role"])
-        formData.append('group', memberToAdd.value["group"])
-        
-        for (var pair of formData.entries()) {
-            console.log(pair[0]+ ', ' + pair[1]); 
-        }
-
-        await axios.post(`/api/members/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-
         await fetchMembers()
-    }
-
-    async function onDeleteClick(member) {
-        await axios.delete(`/api/members/${member.id}/`)
-        await fetchMembers()
-    }
-
-    function onEditClick(member){
-        memberToEdit.value = { ...member, group: member.group.id }
-    }
-
-    async function onEditSubmitClick(member) {
-        await axios.put(`/api/members/${member.id}/`, memberToEdit.value)
-        memberToEdit.value = {}
-        await fetchMembers()
-    }
-
-    function onEditCancelClick(){
-        memberToEdit.value = {}
     }
 
     function memberAddImageChange(){
@@ -82,25 +61,87 @@
     function memberAddImageDelete(index){
         memberImagesToAdd.value.splice(index, 1)
     }
-
-    function memberImagesById(id){
-        return toRaw(memberImages.value).filter(obj => obj.member == id)
+    
+    // Edit
+    function onEditClick(member){
+        memberToEdit.value = { 
+            ...member, 
+            group: member.group.id,
+            images: toRaw(memberImages.value).filter(obj => obj.member == member.id), 
+            imagesToAdd: [], 
+            imagesToDelete: [] 
+        }
     }
 
-    function imageClick(){
-        console.log(`Clicked on image`)
+    async function onEditSubmitClick() {
+        await axios.put(`/api/members/${memberToEdit.value.id}/`, {
+            'name': memberToEdit.value.name,
+            'role': memberToEdit.value.role,
+            'group': memberToEdit.value.group
+        })
+
+        for(let id of memberToEdit.value.imagesToDelete){
+            await axios.delete(`/api/member_images/${id}/`)
+        }
+        
+        for(let image of memberToEdit.value.imagesToAdd){
+            const formData = new FormData()
+            formData.append('member', memberToEdit.value.id)
+            formData.append('image', image.file)
+
+            await axios.post(`/api/member_images/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+        }
+
+        memberToEdit.value = {}
+        await fetchMembers()
     }
 
-    // Сработает при запуске приложения
+    function onEditCancelClick(){
+        memberToEdit.value = {}
+    }
+
+    function memberEditImageChange(event){
+        for(let i = 0; i < event.target.files.length; i++){
+            const obj = { file: event.target.files[i], url: URL.createObjectURL(event.target.files[i]) }
+            memberToEdit.value.imagesToAdd.push(obj)
+        }
+    }
+
+    function memberEditImageDeleteAdded(imageId){
+        memberToEdit.value.imagesToAdd.splice(imageId, 1)
+    }
+
+    function memberEditImageDeleteExisting(image){
+        const index = memberToEdit.value.images.indexOf(image)
+        memberToEdit.value.images.splice(index, 1)
+        memberToEdit.value.imagesToDelete.push(image.id)
+    }
+
+    // Delete
+    async function onDeleteClick(member) {
+        await axios.delete(`/api/members/${member.id}/`)
+        await fetchMembers()
+    }
+
+    // При запуске приложения
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchMembers()
         await fetchGroups()
     })
+ 
+    function imageClick(){
+        console.log(`Clicked on image`)
+    }
 
 </script>
 
 <template>
+    {{ memberToEdit }}
     <div class="p-3">
         <div class="row">
             <div class="col">
@@ -182,13 +223,31 @@
                         </div>
                     </div>
                     <div class="col-auto mt-auto mb-auto">
-                        <button class="btn btn-success" @click="onEditSubmitClick(member)">
+                        <button class="btn btn-success" @click="onEditSubmitClick()">
                             <i class="bi bi-check-lg"></i>
                         </button>
                     </div>
                     <div class="col-auto mt-auto mb-auto">
                         <button class="btn btn-danger" @click="onEditCancelClick()">
                             <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-auto">
+                        <input class="form-control" type="file" multiple="multiply" ref="memberEditImageRef" @change="memberEditImageChange">
+                    </div>
+                    <div v-for="image in memberToEdit.images" class="col-auto">
+                        <img :src="image.image" style="max-height: 60px;" alt="" @click="imageClick()">
+                        <button class="btn btn-danger imageDeleteButton" @click="memberEditImageDeleteExisting(image)">
+                                <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div v-for="(image, index) in memberToEdit.imagesToAdd" class="col-auto">
+                        <img :src="image.url" style="max-height: 60px;" alt="" @click="imageClick()">
+                        <button class="btn btn-danger imageDeleteButton" @click="memberEditImageDeleteAdded(index)">
+                                <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
                 </div>
