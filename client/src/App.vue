@@ -1,5 +1,9 @@
 <script setup>
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/stores/userStore';
 
+    const userStore = useUserStore()
+    const userInfo = storeToRefs(userStore)
 </script>
 
 <template>
@@ -31,6 +35,7 @@
         </nav>
     </div>
     <div class="container">
+        {{ userInfo }}
 	    <router-view/>
     </div>
 </template>

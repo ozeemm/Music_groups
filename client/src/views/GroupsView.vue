@@ -8,8 +8,6 @@
     const groupToAdd = ref({})
     const groupToEdit = ref({})
 
-    const userInfo = ref({})
-
     async function fetchGroups(){
         const r = await axios.get("/api/groups/")
         groups.value = r.data
@@ -38,11 +36,6 @@
 
     function onEditCancelClick(){
         groupToEdit.value = {}
-    }
-
-    async function getUserInfo(){
-        const r = await axios.get(`/api/user/info/`)
-        userInfo.value = r.data
     }
 
     // Сработает при запуске приложения
