@@ -16,6 +16,11 @@ class MemberListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class MemberCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if('request' in self.context):
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+    
     class Meta:
         model = Member
         fields = "__all__"

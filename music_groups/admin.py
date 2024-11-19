@@ -8,7 +8,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ["name", "group", "role"]
+    list_display = ["name", "group", "role", "user"]
 
 @admin.register(MemberImage)
 class MemberImageAdmin(admin.ModelAdmin):

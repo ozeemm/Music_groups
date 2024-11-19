@@ -15,6 +15,7 @@ class Member(models.Model):
     name = models.TextField("Имя")
     group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     role = models.TextField("Роль в группе")
+    user = models.ForeignKey("auth.User", verbose_name="Пользователь", on_delete=models.CASCADE, null=True)
 
     def __str__(self) -> str:
         return self.name

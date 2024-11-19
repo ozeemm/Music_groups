@@ -18,6 +18,7 @@
     async function onGroupAdd(){
         await axios.post("/api/groups/", groupToAdd.value)
         await fetchGroups()
+        groupToAdd.value = {}
     }
 
     async function onDeleteClick(group) {
