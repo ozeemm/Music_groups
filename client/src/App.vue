@@ -29,13 +29,13 @@
                                 <li><a class="dropdown-item" href="/admin">Админка</a></li>
                             </ul>
                         </div>
+                        <div class="nav-link"> {{ userInfo }} </div>
                     </div>
                 </div>
             </div>
         </nav>
     </div>
     <div class="container">
-        {{ userInfo }}
 	    <router-view/>
     </div>
 </template>
