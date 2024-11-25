@@ -16,6 +16,7 @@
 
     const albumToAdd = ref({})
     const albumToEdit = ref({})
+    const albumToEditImageFile = ref(null)
 
     const albumImageRef = ref()
     const albumEditImageRef = ref() // Тут будет массив, так как input создаётся в for
@@ -68,7 +69,7 @@
         albumToEdit.value = { 
             ...album, 
             group: album.group.id, 
-            genre: album.genre.id
+            genre: album.genre.id,
         }
     }
 
@@ -76,8 +77,8 @@
         const formData = new FormData()
 
         // "Введённый" файл
-        if(albumEditImageRef.value != null)
-            formData.append('image', albumEditImageRef.value.files[0])
+        if(albumToEditImageFile.value)
+            formData.append('image', albumToEditImageFile.value)
 
         formData.set('name', albumToEdit.value.name)
         formData.set('year', albumToEdit.value.year)
@@ -97,6 +98,7 @@
 
     function onEditCancelClick(){
         albumToEdit.value = {}
+        albumToEditImageFile.value = null
         albumEditImageRef.value = null
     }
 
@@ -105,8 +107,8 @@
     }
     
     async function albumEditImageChange(event){
-        albumEditImageRef.value.files = event.target.files
-        albumToEdit.value.image = URL.createObjectURL(albumEditImageRef.value[0].files[0])
+        albumToEditImageFile.value = event.target.files[0]
+        albumToEdit.value.image = URL.createObjectURL(event.target.files[0])
     }
 
     // Сработает при запуске приложения
@@ -127,6 +129,7 @@
 </script>
 
 <template>
+    {{  albums  }}
     <div class="p-3">
         <div class="row">
             <div class="col">
