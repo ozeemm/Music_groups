@@ -3,6 +3,11 @@ from music_groups.models import *
 
 # Group
 class GroupSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if('request' in self.context):
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
     class Meta:
         model = Group
         fields = "__all__"
@@ -41,6 +46,11 @@ class AlbumListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class AlbumCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if('request' in self.context):
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
     class Meta:
         model = Album
         fields = "__all__"
@@ -53,12 +63,22 @@ class SongListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class SongCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if('request' in self.context):
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
     class Meta:
         model = Song
         fields = "__all__"
 
 # Genre
 class GenreSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if('request' in self.context):
+            validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
     class Meta:
         model = Genre
         fields = "__all__"

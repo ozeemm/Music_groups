@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 class Group(models.Model):
     name = models.TextField("Название")
+    user = models.ForeignKey("auth.User", verbose_name="Пользователь", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Группа"
@@ -38,6 +39,7 @@ class Album(models.Model):
     group = models.ForeignKey("Group", verbose_name="Группа", on_delete=models.CASCADE, null=True)
     genre = models.ForeignKey("Genre", verbose_name="Жанр", on_delete=models.CASCADE, null=True)
     image = models.ImageField("Обложка", null=True, blank=True, upload_to="music_groups/albums")
+    user = models.ForeignKey("auth.User", verbose_name="Пользователь", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Альбом"
@@ -49,6 +51,7 @@ class Album(models.Model):
 class Song(models.Model):
     name = models.TextField("Название")
     album = models.ForeignKey("Album", verbose_name="Альбом", on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey("auth.User", verbose_name="Пользователь", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Песня"
@@ -56,6 +59,7 @@ class Song(models.Model):
 
 class Genre(models.Model):
     name = models.TextField("Название")
+    user = models.ForeignKey("auth.User", verbose_name="Пользователь", on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = "Жанр"

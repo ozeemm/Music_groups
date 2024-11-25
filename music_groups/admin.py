@@ -4,7 +4,7 @@ from music_groups.models import *
 # Register your models here.
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ["name"] # Какие поля выводим в админку
+    list_display = ["name", "user"] # Какие поля выводим в админку
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
@@ -16,12 +16,12 @@ class MemberImageAdmin(admin.ModelAdmin):
 
 @admin.register(Album)
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ["name", "year", "group", "genre"]
+    list_display = ["name", "year", "group", "genre", "image", "user"]
 
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ["name", "album"]
+    list_display = ["name", "album", "user"]
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
-    list_display = ["name"]
+    list_display = ["name", "user"]
