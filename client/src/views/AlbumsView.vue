@@ -2,8 +2,13 @@
     import { onBeforeMount, ref, useTemplateRef } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
-
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/stores/userStore';
+    
     import ImageModal from '@/components/ImageModal.vue';
+
+    const userStore = useUserStore()
+    const userInfo = storeToRefs(userStore)
 
     const albums = ref([])
     const groups = ref([])
@@ -167,7 +172,7 @@
         </div>
 
         <div v-for="album in albums">
-            <!-- Отображение альбомов -->
+            <!-- Отображение -->
             <div v-if="album.id != albumToEdit.id" class="item">
                 <span>{{ album.name }}</span>
                 <span>{{ album.year }}</span> 
@@ -176,6 +181,7 @@
                 <span v-if="album.image" v-show="album.image">
                     <img :src="album.image" style="max-height: 60px" @click="imageClick(album)">
                 </span>
+                <span v-if="userInfo.isSuperuser"> Created by {{ album.user.username }} </span>
                 <button @click="onEditClick(album)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>

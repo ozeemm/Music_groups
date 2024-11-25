@@ -1,7 +1,12 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue'
+    import { onBeforeMount, ref } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/stores/userStore';
+
+    const userStore = useUserStore()
+    const userInfo = storeToRefs(userStore)
 
     const genres = ref([])
 
@@ -63,9 +68,10 @@
         </div>
 
         <div v-for="genre in genres">
-            <!-- Отображение группы -->
+            <!-- Отображение -->
             <div v-if="genre.id != genreToEdit.id" class="item">
                 <span>{{ genre.name }}</span>
+                <span v-if="userInfo.isSuperuser"> Created by {{ genre.user.username }} </span>
                 <button @click="onEditClick(genre)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>

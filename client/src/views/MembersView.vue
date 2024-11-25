@@ -2,8 +2,13 @@
     import { onBeforeMount, ref, toRaw, useTemplateRef } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie'
-
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/stores/userStore';
+    
     import ImageModal from '@/components/ImageModal.vue'
+
+    const userStore = useUserStore()
+    const userInfo = storeToRefs(userStore)
 
     const members = ref([])
     const memberImages = ref([])
@@ -189,7 +194,7 @@
         </div>
 
         <div v-for="member in members">
-            <!-- Отображение участников -->
+            <!-- Отображение -->
             <div v-if="member.id != memberToEdit.id" class="item">
                 
                 <span>{{ member.name }}</span>
@@ -198,6 +203,7 @@
                 <div v-for="image in memberImages">
                     <img v-if="image.member == member.id" :src="image.image" style="max-height: 60px;" alt="" @click="imageClick(member.name, image.image)">
                 </div>
+                <span v-if="userInfo.isSuperuser"> Created by {{ member.user.username }} </span>
                 <button @click="onEditClick(member)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>

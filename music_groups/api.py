@@ -2,7 +2,6 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.http.request import QueryDict
 
 from music_groups.models import *
 from music_groups.serializers import *
@@ -18,6 +17,13 @@ class GroupsViewset(
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if(not self.request.user.is_superuser):
+            qs = qs.filter(user=self.request.user)
+
+        return qs
+
 class MembersViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Member.objects.all()
 
@@ -26,6 +32,13 @@ class MembersViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Re
             return MemberListSerializer
         else:
             return MemberCreateSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if(not self.request.user.is_superuser):
+            qs = qs.filter(user=self.request.user)
+
+        return qs
 
 class MemberImagesViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = MemberImage.objects.all()
@@ -40,6 +53,13 @@ class AlbumsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Ret
         else:
             return AlbumCreateSerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if(not self.request.user.is_superuser):
+            qs = qs.filter(user=self.request.user)
+
+        return qs
+
 class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Song.objects.all()
     
@@ -48,10 +68,24 @@ class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Retr
             return SongListSerializer
         else:
             return SongCreateSerializer
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if(not self.request.user.is_superuser):
+            qs = qs.filter(user=self.request.user)
+
+        return qs
 
 class GenresViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if(not self.request.user.is_superuser):
+            qs = qs.filter(user=self.request.user)
+
+        return qs
 
 class UserProfileViewset(GenericViewSet):
     @action(url_path="info", detail=False, methods=["GET"])

@@ -1,7 +1,12 @@
 <script setup>
-    import { computed, onBeforeMount, ref } from 'vue'
+    import { onBeforeMount, ref } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/stores/userStore';
+
+    const userStore = useUserStore()
+    const userInfo = storeToRefs(userStore)
 
     const songs = ref([])
     const albums = ref([])
@@ -78,10 +83,11 @@
         </div>
 
         <div v-for="song in songs">
-            <!-- Отображение группы -->
+            <!-- Отображение -->
             <div v-if="song.id != songToEdit.id" class="item">
                 <span>{{ song.name }}</span>
                 <span>{{ song.album.name }}</span>
+                <span v-if="userInfo.isSuperuser"> Created by {{ song.user.username }} </span>
                 <button @click="onEditClick(song)" class="btn btn-success">
                     <i class="bi bi-pencil-fill"></i>
                 </button>

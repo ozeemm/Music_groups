@@ -1,8 +1,16 @@
 from rest_framework import serializers
 from music_groups.models import *
+from django.contrib.auth.models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username"]
 
 # Group
 class GroupSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
     def create(self, validated_data):
         if('request' in self.context):
             validated_data['user'] = self.context['request'].user
@@ -15,6 +23,7 @@ class GroupSerializer(serializers.ModelSerializer):
 # Member
 class MemberListSerializer(serializers.ModelSerializer):
     group = GroupSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Member
@@ -40,6 +49,7 @@ class MemberImageSerializer(serializers.ModelSerializer):
 class AlbumListSerializer(serializers.ModelSerializer):
     group = GroupSerializer(read_only=True)
     genre = GroupSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Album
@@ -58,6 +68,8 @@ class AlbumCreateSerializer(serializers.ModelSerializer):
 # Song
 class SongListSerializer(serializers.ModelSerializer):
     album = AlbumListSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = Song
         fields = "__all__"
@@ -74,6 +86,8 @@ class SongCreateSerializer(serializers.ModelSerializer):
 
 # Genre
 class GenreSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
     def create(self, validated_data):
         if('request' in self.context):
             validated_data['user'] = self.context['request'].user
