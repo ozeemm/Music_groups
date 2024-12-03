@@ -2,6 +2,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Count
 
 from music_groups.models import *
 from music_groups.serializers import *
@@ -59,6 +60,30 @@ class AlbumsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Ret
             qs = qs.filter(user=self.request.user)
 
         return qs
+
+    class StatsSerializer(serializers.Serializer):
+        albums_count = serializers.IntegerField()
+        albums_by_groups = serializers.JSONField()
+        albums_by_genres = serializers.JSONField()
+        albums_by_years = serializers.JSONField()
+
+    @action(detail=False, methods=['GET'], url_path='stats')
+    def get_stats(self, request, *args, **kwargs):
+        albums_count = Album.objects.aggregate(count=Count("*"))
+        albums_by_groups = Album.objects.values('group__name').annotate(count=Count("group"))
+        albums_by_genres = Album.objects.values('genre__name').annotate(count=Count("genre"))
+        albums_by_years = Album.objects.values('year').annotate(count=Count("year"))
+
+        stats = { 
+            'albums_count': albums_count['count'], 
+            'albums_by_groups': albums_by_groups, 
+            'albums_by_genres': albums_by_genres, 
+            'albums_by_years': albums_by_years
+        }
+        
+        serializer = self.StatsSerializer(instance=stats)
+
+        return Response(serializer.data)
 
 class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Song.objects.all()

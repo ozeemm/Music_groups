@@ -13,6 +13,7 @@
     const albums = ref([])
     const groups = ref([])
     const genres = ref([])
+    const stats = ref({})
 
     const albumToAdd = ref({})
     const albumToEdit = ref({})
@@ -27,6 +28,12 @@
     async function fetchAlbums(){
         const r = await axios.get("/api/albums/")
         albums.value = r.data
+        await fetchStats()
+    }
+
+    async function fetchStats(){
+        const r = await axios.get("/api/albums/stats/")
+        stats.value = r.data
     }
 
     async function fetchGroups(){
@@ -129,7 +136,6 @@
 </script>
 
 <template>
-    {{  albums  }}
     <div class="p-3">
         <div class="row">
             <div class="col">
@@ -244,9 +250,33 @@
             </div>
         </div>
 
+        <div class="stats-panel">
+            <h3 class="text-center p-2 mb-2">Статистика</h3>
+            <div class="stats-item">Всего альбомов: {{ stats.albums_count }}</div>
+            <div class="stats-item">
+                <div>Альбомы по группам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_groups">{{ album.group__name }}: {{ album.count }}</li>
+                </ul>
+            </div>
+            <div class="stats-item">
+                <div>Альбомы по жанрам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_genres">{{ album.genre__name }}: {{ album.count }}</li>
+                </ul>
+            </div>
+            <div class="stats-item">
+                <div>Альбомы по годам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_years">{{ album.year }}: {{ album.count }}</li>
+                </ul>
+            </div>
+        </div>
+
         <image-modal :title="modalImageObj.name" :image="modalImageObj.imageUrl" ref="imageModalRef"/>
     </div>
 </template>
 
 <style scoped>
+
 </style>
