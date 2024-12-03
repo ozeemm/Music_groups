@@ -80,7 +80,7 @@ class AlbumsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Ret
             'albums_by_genres': albums_by_genres, 
             'albums_by_years': albums_by_years
         }
-        
+
         serializer = self.StatsSerializer(instance=stats)
 
         return Response(serializer.data)
@@ -100,6 +100,24 @@ class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Retr
             qs = qs.filter(user=self.request.user)
 
         return qs
+    
+    class StatsSerializer(serializers.Serializer):
+        songs_count = serializers.IntegerField()
+        songs_by_albums = serializers.JSONField()
+
+    @action(detail=False, methods=['GET'], url_path='stats')
+    def get_stats(self, request, *args, **kwargs):
+        songs_count = Song.objects.aggregate(count=Count("*"))
+        songs_by_albums = Song.objects.values('album__name').annotate(count=Count("album"))
+
+        stats = { 
+            'songs_count': songs_count['count'], 
+            'songs_by_albums': songs_by_albums
+        }
+        
+        serializer = self.StatsSerializer(instance=stats)
+
+        return Response(serializer.data)
 
 class GenresViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Genre.objects.all()

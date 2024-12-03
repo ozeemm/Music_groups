@@ -254,19 +254,19 @@
             <h3 class="text-center p-2 mb-2">Статистика</h3>
             <div class="stats-item">Всего альбомов: {{ stats.albums_count }}</div>
             <div class="stats-item">
-                <div>Альбомы по группам:</div>
+                <div>Альбомов по группам:</div>
                 <ul>
                     <li v-for="album in stats.albums_by_groups">{{ album.group__name }}: {{ album.count }}</li>
                 </ul>
             </div>
             <div class="stats-item">
-                <div>Альбомы по жанрам:</div>
+                <div>Альбомов по жанрам:</div>
                 <ul>
                     <li v-for="album in stats.albums_by_genres">{{ album.genre__name }}: {{ album.count }}</li>
                 </ul>
             </div>
             <div class="stats-item">
-                <div>Альбомы по годам:</div>
+                <div>Альбомов по годам:</div>
                 <ul>
                     <li v-for="album in stats.albums_by_years">{{ album.year }}: {{ album.count }}</li>
                 </ul>

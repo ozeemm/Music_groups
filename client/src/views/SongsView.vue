@@ -1,5 +1,5 @@
 <script setup>
-    import { onBeforeMount, ref } from 'vue'
+    import { onBeforeMount, ref, computed } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
@@ -10,6 +10,7 @@
 
     const songs = ref([])
     const albums = ref([])
+    const stats = ref({})
 
     const songToAdd = ref({})
     const songToEdit = ref({})
@@ -17,6 +18,12 @@
     async function fetchSongs(){
         const r = await axios.get("/api/songs/")
         songs.value = r.data
+        await fetchStats()
+    }
+
+    async function fetchStats(){
+        const r = await axios.get("/api/songs/stats/")
+        stats.value = r.data
     }
 
     async function fetchAlbums(){
@@ -124,6 +131,17 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <h3 class="text-center p-2 mb-2">Статистика</h3>
+            <div class="stats-item">Всего песен: {{ stats.songs_count }}</div>
+            <div class="stats-item">
+                <div>Песен по альбомам:</div>
+                <ul>
+                    <li v-for="song in stats.songs_by_albums">{{ song.album__name }}: {{ song.count }}</li>
+                </ul>
             </div>
         </div>
     </div>
