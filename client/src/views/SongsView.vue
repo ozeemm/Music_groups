@@ -5,6 +5,8 @@
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
 
+    import StatsPanel from '@/components/StatsPanel.vue';
+
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
 
@@ -66,6 +68,16 @@
 
 <template>
     <div class="p-3">
+        <stats-panel>
+            <div class="stats-item col-auto">Всего песен: {{ stats.songs_count }}</div>
+            <div class="stats-item col-auto">
+                <div>Песен по альбомам:</div>
+                <ul>
+                    <li v-for="song in stats.songs_by_albums">{{ song.album__name }}: {{ song.count }}</li>
+                </ul>
+            </div>
+        </stats-panel>
+
         <div class="row">
             <div class="col">
                 <div class="form-floating">
@@ -131,17 +143,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="stats-panel">
-            <h3 class="text-center p-2 mb-2">Статистика</h3>
-            <div class="stats-item">Всего песен: {{ stats.songs_count }}</div>
-            <div class="stats-item">
-                <div>Песен по альбомам:</div>
-                <ul>
-                    <li v-for="song in stats.songs_by_albums">{{ song.album__name }}: {{ song.count }}</li>
-                </ul>
             </div>
         </div>
     </div>

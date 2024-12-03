@@ -6,6 +6,7 @@
     import { useUserStore } from '@/stores/userStore';
     
     import ImageModal from '@/components/ImageModal.vue';
+    import StatsPanel from '@/components/StatsPanel.vue';
 
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
@@ -137,6 +138,32 @@
 
 <template>
     <div class="p-3">
+        <stats-panel>
+            <div class="stats-item col-auto">Всего альбомов: {{ stats.albums_count }}</div>
+            <div class="col-auto">
+                <div class="stats-item">Самый старый альбом: {{ stats.oldest_album_year }}</div>
+                <div class="stats-item">Самый новый альбом: {{ stats.newest_album_year }}</div>
+            </div>
+            <div class="stats-item col-auto">
+                <div>Альбомов по группам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_groups">{{ album.group__name }}: {{ album.count }}</li>
+                </ul>
+            </div>
+            <div class="stats-item col-auto">
+                <div>Альбомов по жанрам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_genres">{{ album.genre__name }}: {{ album.count }}</li>
+                </ul>
+            </div>
+            <div class="stats-item col-auto">
+                <div>Альбомов по годам:</div>
+                <ul>
+                    <li v-for="album in stats.albums_by_years">{{ album.year }}: {{ album.count }}</li>
+                </ul>
+            </div>
+        </stats-panel>
+
         <div class="row">
             <div class="col">
                 <div class="form-floating">
@@ -247,29 +274,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="stats-panel">
-            <h3 class="text-center p-2 mb-2">Статистика</h3>
-            <div class="stats-item">Всего альбомов: {{ stats.albums_count }}</div>
-            <div class="stats-item">
-                <div>Альбомов по группам:</div>
-                <ul>
-                    <li v-for="album in stats.albums_by_groups">{{ album.group__name }}: {{ album.count }}</li>
-                </ul>
-            </div>
-            <div class="stats-item">
-                <div>Альбомов по жанрам:</div>
-                <ul>
-                    <li v-for="album in stats.albums_by_genres">{{ album.genre__name }}: {{ album.count }}</li>
-                </ul>
-            </div>
-            <div class="stats-item">
-                <div>Альбомов по годам:</div>
-                <ul>
-                    <li v-for="album in stats.albums_by_years">{{ album.year }}: {{ album.count }}</li>
-                </ul>
             </div>
         </div>
 

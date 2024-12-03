@@ -6,6 +6,7 @@
     import { useUserStore } from '@/stores/userStore';
     
     import ImageModal from '@/components/ImageModal.vue'
+    import StatsPanel from '@/components/StatsPanel.vue';
 
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
@@ -13,6 +14,7 @@
     const members = ref([])
     const memberImages = ref([])
     const groups = ref([])
+    const stats = ref({})
 
     const memberToAdd = ref({})
     const memberImagesToAdd = ref([])
@@ -29,6 +31,12 @@
         const r = await axios.get("/api/members/")
         members.value = r.data
         await fetchMemberImages()
+        await fetchStats()
+    }
+
+    async function fetchStats() {
+        const r = await axios.get("/api/members/stats/")
+        stats.value = r.data
     }
 
     async function fetchGroups(){
@@ -154,6 +162,22 @@
 
 <template>
     <div class="p-3">
+        <stats-panel>
+            <div class="stats-item col-auto">Всего участиков: {{ stats.members_count }}</div>
+            <div class="stats-item col-auto">
+                <div>Участников по группам:</div>
+                <ul>
+                    <li v-for="member in stats.members_by_groups">{{ member.group__name }}: {{ member.count }}</li>
+                </ul>
+            </div>
+            <div class="stats-item col-auto">
+                <div>Участников по ролям в группе:</div>
+                <ul>
+                    <li v-for="member in stats.members_by_roles">{{ member.role }}: {{ member.count }}</li>
+                </ul>
+            </div>
+        </stats-panel>
+
         <div class="row">
             <div class="col">
                 <div class="form-floating">

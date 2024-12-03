@@ -5,10 +5,13 @@
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
 
+    import StatsPanel from '@/components/StatsPanel.vue';
+
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
 
     const genres = ref([])
+    const stats = ref({})
 
     const genreToAdd = ref({})
     const genreToEdit = ref({})
@@ -16,6 +19,12 @@
     async function fetchGenres(){
         const r = await axios.get("/api/genres/")
         genres.value = r.data
+        await fetchStats()
+    }
+
+    async function fetchStats(){
+        const r = await axios.get("/api/genres/stats/")
+        stats.value = r.data
     }
 
     async function onGroupAdd(){
@@ -52,6 +61,10 @@
 
 <template>
     <div class="p-3">
+        <stats-panel>
+            <div class="stats-item col-auto">Всего жанров: {{ stats.genres_count }}</div>
+        </stats-panel>
+
         <div class="row">
             <div class="col">
                 <div class="form-floating">
