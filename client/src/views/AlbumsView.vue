@@ -17,6 +17,7 @@
     const stats = ref({})
 
     const albumToAdd = ref({})
+    const albumToAddImageFile = ref(null)
     const albumToEdit = ref({})
     const albumToEditImageFile = ref(null)
 
@@ -51,8 +52,8 @@
         const formData = new FormData()
 
         // "Введённый" файл
-        if(albumImageRef.value.files[0] != null)
-            formData.append('image', albumImageRef.value.files[0])
+        if(albumToAddImageFile.value != null)
+            formData.append('image', albumToAddImageFile.value)
 
         formData.set('name', albumToAdd.value.name)
         formData.set('year', albumToAdd.value.year)
@@ -83,10 +84,13 @@
 
     async function onEditSubmitClick(album) {
         const formData = new FormData()
-
+        
         // "Введённый" файл
-        if(albumToEditImageFile.value)
+        if(albumToEditImageFile.value){ // Image changed
             formData.append('image', albumToEditImageFile.value)
+        }
+        else if(album.image != albumToEdit.value.image) // Image deleted        
+            formData.append('image', "")
 
         formData.set('name', albumToEdit.value.name)
         formData.set('year', albumToEdit.value.year)
@@ -101,22 +105,34 @@
         })
 
         albumToEdit.value = {}
+        albumToEditImageFile.value = null
+
         await fetchAlbums()
     }
 
     function onEditCancelClick(){
         albumToEdit.value = {}
         albumToEditImageFile.value = null
-        albumEditImageRef.value = null
     }
 
-    async function albumAddImageChange(){
+    function albumAddImageChange(){
+        albumToAddImageFile.value = albumImageRef.value.files[0]
         albumToAdd.value.image = URL.createObjectURL(albumImageRef.value.files[0])
     }
+
+    function albumAddImageDelete(){
+        albumToAddImageFile.value = null
+        albumToAdd.value.image = null
+    }
     
-    async function albumEditImageChange(event){
+    function albumEditImageChange(event){
         albumToEditImageFile.value = event.target.files[0]
         albumToEdit.value.image = URL.createObjectURL(event.target.files[0])
+    }
+
+    function albumEditImageDelete(){
+        albumToEditImageFile.value = null
+        albumToEdit.value.image = null
     }
 
     // Сработает при запуске приложения
@@ -198,6 +214,9 @@
             </div>
             <div class="col-auto">
                 <img :src="albumToAdd.image" style="max-height: 60px;" alt="" @click="imageClick(albumToAdd)">
+                <button v-if="albumToAdd.image" class="btn btn-danger imageDeleteButton" @click="albumAddImageDelete()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
 
             <div class="col-auto mt-auto mb-auto">
@@ -262,6 +281,9 @@
                     </div>
                     <div class="col-auto">
                         <img :src="albumToEdit.image" style="max-height: 60px;" alt="" @click="imageClick(albumToEdit)">
+                        <button v-if="albumToEdit.image" class="btn btn-danger imageDeleteButton" @click="albumEditImageDelete()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     </div>
                     <div class="col-auto mt-auto mb-auto">
                         <button class="btn btn-success" @click="onEditSubmitClick(album)">
@@ -282,5 +304,10 @@
 </template>
 
 <style scoped>
-
+.imageDeleteButton{
+    position: relative;
+    top: -25px;
+    right: 25px;
+    transform: scale(0.6);
+}
 </style>
