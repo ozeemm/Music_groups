@@ -16,10 +16,14 @@
     const groupToAdd = ref({})
     const groupToEdit = ref({})
 
+    const isLoading = ref(false)
+
     async function fetchGroups(){
+        isLoading.value = true
         const r = await axios.get("/api/groups/")
         groups.value = r.data
         await fetchStats()
+        isLoading.value = false
     }
 
     async function fetchStats(){
@@ -61,7 +65,10 @@
 </script>
 
 <template>
-    <div class="p-3">
+    <div v-if="isLoading" class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div v-else class="p-3">
         <stats-panel>
             <div class="stats-item col-auto">Всего групп: {{ stats.groups_count }}</div>
         </stats-panel>

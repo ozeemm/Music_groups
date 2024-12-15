@@ -26,12 +26,16 @@
     const imageModalRef = useTemplateRef('imageModalRef')
     const modalImageObj = ref({})
 
+    const isLoading = ref(false)
+
     // Fetch data
     async function fetchMembers(){
+        isLoading.value = true
         const r = await axios.get("/api/members/")
         members.value = r.data
         await fetchMemberImages()
         await fetchStats()
+        isLoading.value = false
     }
 
     async function fetchStats() {
@@ -161,7 +165,10 @@
 </script>
 
 <template>
-    <div class="p-3">
+    <div v-if="isLoading" class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div v-else class="p-3">
         <stats-panel>
             <div class="stats-item col-auto">Всего участников: {{ stats.members_count }}</div>
             <div class="stats-item col-auto">

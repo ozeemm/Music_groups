@@ -17,13 +17,17 @@
     const songToAdd = ref({})
     const songToEdit = ref({})
 
+    const isLoading = ref(false)
+
     // const users = computed(() => new Set(songs.value.map(song => song.user.username)))
     // const songsFiltered = computed(() => songs.value.filter(song => song.name == "Миграция"))
     
     async function fetchSongs(){
+        isLoading.value = true
         const r = await axios.get("/api/songs/")
         songs.value = r.data
         await fetchStats()
+        isLoading.value = false
     }
 
     async function fetchStats(){
@@ -70,7 +74,10 @@
 </script>
 
 <template>
-    <div class="p-3">
+    <div v-if="isLoading" class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div v-else class="p-3">
         <stats-panel>
             <div class="stats-item col-auto">Всего песен: {{ stats.songs_count }}</div>
             <div class="stats-item col-auto">
@@ -152,4 +159,5 @@
 </template>
 
 <style scoped>
+
 </style>

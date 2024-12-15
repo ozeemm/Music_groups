@@ -16,10 +16,14 @@
     const genreToAdd = ref({})
     const genreToEdit = ref({})
 
+    const isLoading = ref(false)
+
     async function fetchGenres(){
+        isLoading.value = true
         const r = await axios.get("/api/genres/")
         genres.value = r.data
         await fetchStats()
+        isLoading.value = false
     }
 
     async function fetchStats(){
@@ -60,7 +64,10 @@
 </script>
 
 <template>
-    <div class="p-3">
+    <div v-if="isLoading" class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div v-else class="p-3">
         <stats-panel>
             <div class="stats-item col-auto">Всего жанров: {{ stats.genres_count }}</div>
         </stats-panel>

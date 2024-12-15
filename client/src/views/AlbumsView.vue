@@ -27,10 +27,14 @@
     const imageModalRef = useTemplateRef('imageModalRef')
     const modalImageObj = ref({})
 
+    const isLoading = ref(false)
+
     async function fetchAlbums(){
+        isLoading.value = true
         const r = await axios.get("/api/albums/")
         albums.value = r.data
         await fetchStats()
+        isLoading.value = false
     }
 
     async function fetchStats(){
@@ -153,7 +157,10 @@
 </script>
 
 <template>
-    <div class="p-3">
+    <div v-if="isLoading" class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div v-else class="p-3">
         <stats-panel>
             <div class="stats-item col-auto">Всего альбомов: {{ stats.albums_count }}</div>
             <div class="col-auto">
