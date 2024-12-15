@@ -1,13 +1,27 @@
 <script setup>
+    import { onBeforeMount } from 'vue';
+    import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import axios from 'axios';
+    import router from './router';
 
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
+
+    async function logout(){
+        await axios.post("/api/user/logout/")
+        userStore.getInfo()
+        router.push("/login")
+    }
+
+    onBeforeMount(async () => {
+        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken")
+    })
 </script>
 
 <template>
-    <div class="container">
+    <div class="container" v-if="userInfo.isAuthenticated.value">
         <nav class="navbar navbar-expand-lg navbar-light bg-lights">
             <div class="container-fluid">
                 <router-link class="navbar-brand" to="/"><i class="bi bi-music-note"></i></router-link>
@@ -21,20 +35,20 @@
                         <router-link class="nav-link" to="/albums">Альбомы</router-link>
                         <router-link class="nav-link" to="/songs">Песни</router-link>
                         <router-link class="nav-link" to="/genres">Жанры</router-link>
-                        <div class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Пользователь
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="/admin">Админка</a></li>
-                            </ul>
-                        </div>
-                        <div class="nav-link"> {{ userInfo }} </div>
+
+                        <a v-if="userInfo.isSuperuser" class="nav-link" href="/admin">Админка</a>
+                        
+                        <ul class="nav-item p-2">
+                            <span :class="{'fw-bold': userInfo.isSuperuser}">{{ userInfo.name }}</span>
+                            <span class="nav-link d-inline" role="button" @click="logout()">(Выйти)</span> 
+                        </ul>
                     </div>
+                    
                 </div>
             </div>
         </nav>
     </div>
+
     <div class="container">
 	    <router-view/>
     </div>

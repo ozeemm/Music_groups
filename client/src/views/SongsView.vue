@@ -17,6 +17,9 @@
     const songToAdd = ref({})
     const songToEdit = ref({})
 
+    // const users = computed(() => new Set(songs.value.map(song => song.user.username)))
+    // const songsFiltered = computed(() => songs.value.filter(song => song.name == "Миграция"))
+    
     async function fetchSongs(){
         const r = await axios.get("/api/songs/")
         songs.value = r.data

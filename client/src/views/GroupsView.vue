@@ -56,7 +56,6 @@
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchGroups()
-        await getUserInfo()
     })
 
 </script>
@@ -64,7 +63,7 @@
 <template>
     <div class="p-3">
         <stats-panel>
-            <div class="stats-item col-auto">Всего жанров: {{ stats.groups_count }}</div>
+            <div class="stats-item col-auto">Всего групп: {{ stats.groups_count }}</div>
         </stats-panel>
 
         <div class="row">

@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import MembersView from '../views/MembersView.vue'
 import GroupsView from '../views/GroupsView.vue'
 import AlbumsView from '../views/AlbumsView.vue'
 import SongsView from '../views/SongsView.vue'
 import GenresView from '../views/GenresView.vue'
+import LoginView from '../views/LoginView.vue'
+import RegisterView from '../views/RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,7 +30,15 @@ const router = createRouter({
         path: "/genres",
         name: "GenresView",
         component: GenresView
-    },
+    },{
+        path: "/login",
+        name: "LoginView",
+        component: LoginView
+    },{
+        path: "/register",
+        name: "RegisterView",
+        component: RegisterView
+    }
   ]
 })
 

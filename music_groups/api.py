@@ -1,8 +1,9 @@
 from rest_framework.viewsets import GenericViewSet
-from rest_framework import mixins
+from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Count, Min, Max
+from django.contrib.auth import authenticate, login, logout
 
 from music_groups.models import *
 from music_groups.serializers import *
@@ -30,7 +31,9 @@ class GroupsViewset(
 
     @action(detail=False, methods=['GET'], url_path='stats')
     def get_stats(self, request, *args, **kwargs):
-        groups_count = Group.objects.aggregate(groups_count=Count("*"))
+        groups_count = self.get_queryset().aggregate(
+            groups_count=Count("*")
+        )
         
         serializer = self.StatsSerializer(instance=groups_count)
         return Response(serializer.data)
@@ -58,11 +61,11 @@ class MembersViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Re
 
     @action(detail=False, methods=['GET'], url_path='stats')
     def get_stats(self, request, *args, **kwargs):
-        members_count = Member.objects.aggregate(
+        members_count = self.get_queryset().aggregate(
             count=Count("*")
         )
-        members_by_groups = Member.objects.values('group__name').annotate(count=Count("group"))
-        members_by_roles = Member.objects.values('role').annotate(count=Count("role"))
+        members_by_groups = self.get_queryset().values('group__name').annotate(count=Count("group"))
+        members_by_roles = self.get_queryset().values('role').annotate(count=Count("role"))
 
         stats = { 
             'members_count': members_count['count'], 
@@ -104,14 +107,14 @@ class AlbumsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Ret
 
     @action(detail=False, methods=['GET'], url_path='stats')
     def get_stats(self, request, *args, **kwargs):
-        int_stats = Album.objects.aggregate(
+        int_stats = self.get_queryset().aggregate(
             count=Count("*"),
             min_year=Min("year"),
             max_year=Max("year")
         )
-        albums_by_groups = Album.objects.values('group__name').annotate(count=Count("group"))
-        albums_by_genres = Album.objects.values('genre__name').annotate(count=Count("genre"))
-        albums_by_years = Album.objects.values('year').annotate(count=Count("year"))
+        albums_by_groups = self.get_queryset().values('group__name').annotate(count=Count("group"))
+        albums_by_genres = self.get_queryset().values('genre__name').annotate(count=Count("genre"))
+        albums_by_years = self.get_queryset().values('year').annotate(count=Count("year"))
 
         stats = { 
             'albums_count': int_stats['count'], 
@@ -148,8 +151,8 @@ class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Retr
 
     @action(detail=False, methods=['GET'], url_path='stats')
     def get_stats(self, request, *args, **kwargs):
-        songs_count = Song.objects.aggregate(count=Count("*"))
-        songs_by_albums = Song.objects.values('album__name').annotate(count=Count("album"))
+        songs_count = self.get_queryset().aggregate(count=Count("*"))
+        songs_by_albums = self.get_queryset().values('album__name').annotate(count=Count("album"))
 
         stats = { 
             'songs_count': songs_count['count'], 
@@ -163,25 +166,28 @@ class SongsViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Retr
 class GenresViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        if(not self.request.user.is_superuser):
-            qs = qs.filter(user=self.request.user)
-
-        return qs
     
     class StatsSerializer(serializers.Serializer):
         genres_count = serializers.IntegerField()
 
     @action(detail=False, methods=['GET'], url_path='stats')
     def get_stats(self, request, *args, **kwargs):
-        genres_count = Genre.objects.aggregate(genres_count=Count("*"))
+        genres_count = self.queryset.aggregate(genres_count=Count("*"))
         
         serializer = self.StatsSerializer(instance=genres_count)
         return Response(serializer.data)
 
 class UserProfileViewset(GenericViewSet):
+
+    class LoginSerializer(serializers.Serializer):
+        username = serializers.CharField()
+        password = serializers.CharField()
+    
+    class RegisterSerializer(serializers.Serializer):
+        username = serializers.CharField()
+        email = serializers.EmailField()
+        password = serializers.CharField()
+
     @action(url_path="info", detail=False, methods=["GET"])
     def get_user(self, request, *args, **kwargs):
         user = request.user
@@ -192,4 +198,46 @@ class UserProfileViewset(GenericViewSet):
                 "is_superuser": user.is_superuser,
                 "name": user.username
         })
-        return Response(data)               
+            
+        return Response(data)     
+    
+    @action(url_path="login", detail=False, methods=["POST"])
+    def login(self, request, *args, **kwargs):
+
+        serializer = self.LoginSerializer(data=request.data)
+        if(serializer.is_valid()):
+            userdata = serializer.validated_data
+            user = authenticate(username = userdata['username'], password = userdata['password'])
+
+            if(user is not None):
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(url_path="logout", detail=False, methods=["POST"])
+    def logout(self, request, *args, **kwargs):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
+
+    @action(url_path="register", detail=False, methods=["POST"])
+    def register(self, request, *args, **kwargs):
+        serializer = self.RegisterSerializer(data=request.data)
+        if(serializer.is_valid()):
+            userdata = serializer.validated_data
+            try:
+                user = User.objects.create_user(username=userdata['username'], email=userdata['email'], password=userdata['password'])
+                user.save()
+
+                user = authenticate(username = userdata['username'], password = userdata['password'])
+                login(request, user)
+
+                return Response(status=status.HTTP_200_OK)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+        
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+            

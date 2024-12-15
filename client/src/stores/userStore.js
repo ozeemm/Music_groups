@@ -18,6 +18,6 @@ export const useUserStore = defineStore("UserStore", () => {
 
     return { 
         isAuthenticated, isSuperuser, name, 
-        getInfo 
+        getInfo
     }
 })

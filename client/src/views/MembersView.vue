@@ -163,7 +163,7 @@
 <template>
     <div class="p-3">
         <stats-panel>
-            <div class="stats-item col-auto">Всего участиков: {{ stats.members_count }}</div>
+            <div class="stats-item col-auto">Всего участников: {{ stats.members_count }}</div>
             <div class="stats-item col-auto">
                 <div>Участников по группам:</div>
                 <ul>
