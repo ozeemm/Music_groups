@@ -16,7 +16,7 @@
         if(!registerData.value.username || !registerData.value.password || registerData.value.username == "" || registerData.value.password == "")
             return
         
-            try{
+        try{
             await axios.post("/api/user/register/", registerData.value)
             userStore.getInfo()
             axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken")

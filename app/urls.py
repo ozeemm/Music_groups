@@ -32,6 +32,7 @@ router.register("songs", SongsViewset, basename="songs")
 router.register("genres", GenresViewset, basename="genres")
 router.register("member_images", MemberImagesViewset, basename="member_images")
 router.register("user", UserProfileViewset, basename="user")
+router.register("export", ExportViewset, basename="export")
 
 urlpatterns = [
     path('', views.ShowGroupsView.as_view()),

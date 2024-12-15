@@ -39,7 +39,7 @@
                         <a v-if="userInfo.isSuperuser" class="nav-link" href="/admin">Админка</a>
                         
                         <ul class="nav-item p-2">
-                            <span :class="{'fw-bold': userInfo.isSuperuser}">{{ userInfo.name }}</span>
+                            <span :class="{'fw-bold': userInfo.isSuperuser.value}">{{ userInfo.name }}</span>
                             <span class="nav-link d-inline" role="button" @click="logout()">(Выйти)</span> 
                         </ul>
                     </div>

@@ -3,3 +3,6 @@ djangorestframework==3.15.2
 pytest-django==4.9.0
 model-bakery==1.20.0
 Pillow==11.0.0
+XlsxWriter==3.2.0
+pandas==2.2.3
+Faker==33.0.0

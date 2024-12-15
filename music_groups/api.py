@@ -2,11 +2,15 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import FileResponse
 from django.db.models import Count, Min, Max
 from django.contrib.auth import authenticate, login, logout
 
 from music_groups.models import *
 from music_groups.serializers import *
+import io
+import xlsxwriter
+import pandas as pd
 
 class GroupsViewset(
     mixins.CreateModelMixin, 
@@ -178,7 +182,6 @@ class GenresViewset(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Ret
         return Response(serializer.data)
 
 class UserProfileViewset(GenericViewSet):
-
     class LoginSerializer(serializers.Serializer):
         username = serializers.CharField()
         password = serializers.CharField()
@@ -240,4 +243,23 @@ class UserProfileViewset(GenericViewSet):
     
         
         return Response(status=status.HTTP_400_BAD_REQUEST)
-            
+
+class ExportViewset(GenericViewSet):
+    @action(url_path="xlsx", detail=False, methods=["GET"])
+    def export_xslx(self, request, *args, **kwargs):
+
+        if(not request.user.is_superuser):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        buffer = io.BytesIO()
+        writer = pd.ExcelWriter(buffer, engine='xlsxwriter')
+
+        for model, name in [(Group, "Group"), (Member, "Member"), (Album, "Album"), (Song, "Song"), (Genre, "Genre")]:
+            queryset = model.objects.all().values()
+            df = pd.DataFrame(list(queryset))
+            df.to_excel(writer, sheet_name=name, index=False)
+
+        writer.close()
+        buffer.seek(0)
+
+        return FileResponse(buffer, content_type='application/vnd.ms-excel', as_attachment=True, filename="music.groups.xlsx")
