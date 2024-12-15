@@ -34,7 +34,7 @@
 </script>
 
 <template>
-    <div style="width: 30%" class="border p-5 mx-auto">
+    <div style="width: 30%" class="border p-5 mx-auto mt-5">
         <div class="mb-4 text-center">
             <h2>Login</h2>
         </div>
