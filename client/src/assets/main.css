@@ -5,6 +5,7 @@
     box-shadow: 0 0 4px silver;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .stats-panel{

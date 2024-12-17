@@ -66,7 +66,6 @@
     watch(userInfo.isAuthenticated, () => {        
         if(!userInfo.isAuthenticated.value){
             router.push("/login")
-            return
         }
     })
 
@@ -101,12 +100,14 @@
             <div v-if="group.id != groupToEdit.id" class="item">
                 <span>{{ group.name }}</span>
                 <span v-if="userInfo.isSuperuser"> Created by {{ group.user.username }} </span>
-                <button @click="onEditClick(group)" class="btn btn-success">
-                    <i class="bi bi-pencil-fill"></i>
-                </button>
-                <button @click="onDeleteClick(group)" class="btn btn-danger">
-                    <i class="bi bi-trash3-fill"></i>
-                </button>
+                <div style="justify-content: flex-end;">
+                    <button @click="onEditClick(group)" class="btn btn-success me-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button @click="onDeleteClick(group)" class="btn btn-danger">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </div>
             </div>
             <!-- Отображение области редактирования группы -->
             <div v-else>

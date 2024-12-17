@@ -167,7 +167,6 @@
     watch(userInfo.isAuthenticated, () => {        
         if(!userInfo.isAuthenticated.value){
             router.push("/login")
-            return
         }
     })
 </script>
@@ -235,20 +234,21 @@
         <div v-for="member in members">
             <!-- Отображение -->
             <div v-if="member.id != memberToEdit.id" class="item">
-                
-                <span>{{ member.name }}</span>
-                <span>{{ member.role }}</span> 
-                <span>{{ member.group.name }}</span>
                 <div v-for="image in memberImages">
                     <img v-if="image.member == member.id" :src="image.image" style="max-height: 60px;" alt="" @click="imageClick(member.name, image.image)">
                 </div>
+                <span>{{ member.name }}</span>
+                <span>{{ member.role }}</span> 
+                <span>{{ member.group.name }}</span>
                 <span v-if="userInfo.isSuperuser"> Created by {{ member.user.username }} </span>
-                <button @click="onEditClick(member)" class="btn btn-success">
-                    <i class="bi bi-pencil-fill"></i>
-                </button>
-                <button @click="onDeleteClick(member)" class="btn btn-danger">
-                    <i class="bi bi-person-dash-fill"></i>
-                </button>
+                <div style="justify-content: flex-end;">
+                    <button @click="onEditClick(member)" class="btn btn-success me-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button @click="onDeleteClick(member)" class="btn btn-danger">
+                        <i class="bi bi-person-dash-fill"></i>
+                    </button>
+                </div>
             </div>
             <!-- Отображение области редактирования участника -->
             <div v-else>

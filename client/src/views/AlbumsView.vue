@@ -158,7 +158,6 @@
     watch(userInfo.isAuthenticated, () => {        
         if(!userInfo.isAuthenticated.value){
             router.push("/login")
-            return
         }
     })
 
@@ -244,20 +243,22 @@
         <div v-for="album in albums">
             <!-- Отображение -->
             <div v-if="album.id != albumToEdit.id" class="item">
+                <span v-if="album.image" v-show="album.image">
+                    <img :src="album.image" style="max-height: 60px" @click="imageClick(album)">
+                </span>
                 <span>{{ album.name }}</span>
                 <span>{{ album.year }}</span> 
                 <span>{{ album.group.name }}</span>
                 <span>{{ album.genre.name }}</span>
-                <span v-if="album.image" v-show="album.image">
-                    <img :src="album.image" style="max-height: 60px" @click="imageClick(album)">
-                </span>
                 <span v-if="userInfo.isSuperuser"> Created by {{ album.user.username }} </span>
-                <button @click="onEditClick(album)" class="btn btn-success">
-                    <i class="bi bi-pencil-fill"></i>
-                </button>
-                <button @click="onDeleteClick(album)" class="btn btn-danger">
-                    <i class="bi bi-trash3-fill"></i>
-                </button>
+                <div style="justify-content: flex-end;">
+                    <button @click="onEditClick(album)" class="btn btn-success me-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button @click="onDeleteClick(album)" class="btn btn-danger">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </div>
             </div>
             <!-- Отображение области редактирования альбома -->
             <div v-else>

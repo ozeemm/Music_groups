@@ -67,10 +67,6 @@
 
     // Сработает при запуске приложения
     onBeforeMount(async () => {
-        if(!userInfo.isAuthenticated.value){
-            router.push("/login")
-            return
-        }
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchSongs()
         await fetchAlbums()
@@ -79,7 +75,6 @@
     watch(userInfo.isAuthenticated, () => {        
         if(!userInfo.isAuthenticated.value){
             router.push("/login")
-            return
         }
     })
 
@@ -129,12 +124,14 @@
                 <span>{{ song.name }}</span>
                 <span>{{ song.album.name }}</span>
                 <span v-if="userInfo.isSuperuser"> Created by {{ song.user.username }} </span>
-                <button @click="onEditClick(song)" class="btn btn-success">
-                    <i class="bi bi-pencil-fill"></i>
-                </button>
-                <button @click="onDeleteClick(song)" class="btn btn-danger">
-                    <i class="bi bi-trash3-fill"></i>
-                </button>
+                <div style="justify-content: flex-end;">
+                    <button @click="onEditClick(song)" class="btn btn-success me-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button @click="onDeleteClick(song)" class="btn btn-danger">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </div>
             </div>
             <!-- Отображение области редактирования группы -->
             <div v-else>
