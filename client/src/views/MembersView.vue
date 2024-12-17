@@ -1,9 +1,10 @@
 <script setup>
-    import { onBeforeMount, ref, toRaw, useTemplateRef } from 'vue'
+    import { onBeforeMount, ref, toRaw, useTemplateRef, watch } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie'
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import router from '@/router';
     
     import ImageModal from '@/components/ImageModal.vue'
     import StatsPanel from '@/components/StatsPanel.vue';
@@ -148,13 +149,6 @@
         await axios.delete(`/api/members/${member.id}/`)
         await fetchMembers()
     }
-
-    // При запуске приложения
-    onBeforeMount(async () => {
-        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
-        await fetchMembers()
-        await fetchGroups()
-    })
  
     function imageClick(name, imageUrl){
         modalImageObj.value.name = name
@@ -162,6 +156,20 @@
 
         imageModalRef.value.show()
     }
+
+    // При запуске приложения
+    onBeforeMount(async () => {
+        axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
+        await fetchMembers()
+        await fetchGroups()
+    })
+
+    watch(userInfo.isAuthenticated, () => {        
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
+    })
 </script>
 
 <template>

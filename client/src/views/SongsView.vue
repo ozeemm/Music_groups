@@ -1,9 +1,10 @@
 <script setup>
-    import { onBeforeMount, ref, computed } from 'vue'
+    import { onBeforeMount, ref, computed, watch } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import router from '@/router';
 
     import StatsPanel from '@/components/StatsPanel.vue';
 
@@ -66,9 +67,20 @@
 
     // Сработает при запуске приложения
     onBeforeMount(async () => {
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchSongs()
         await fetchAlbums()
+    })
+
+    watch(userInfo.isAuthenticated, () => {        
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
     })
 
 </script>

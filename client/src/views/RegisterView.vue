@@ -1,7 +1,7 @@
 <script setup>
     import axios from 'axios';
     import Cookies from 'js-cookie';
-    import { onBeforeMount, ref } from 'vue';
+    import { onBeforeMount, ref, watch } from 'vue';
     import router from '@/router';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
@@ -29,6 +29,11 @@
 
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken")
+    })
+
+    watch(userInfo.isAuthenticated, () => {
+        if(userInfo.isAuthenticated.value)
+            router.push("/")
     })
 </script>
 

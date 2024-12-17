@@ -1,9 +1,10 @@
 <script setup>
-    import { onBeforeMount, ref, useTemplateRef } from 'vue'
+    import { onBeforeMount, ref, useTemplateRef, watch } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import router from '@/router';
     
     import ImageModal from '@/components/ImageModal.vue';
     import StatsPanel from '@/components/StatsPanel.vue';
@@ -139,6 +140,13 @@
         albumToEdit.value.image = null
     }
 
+    function imageClick(album){
+        modalImageObj.value.name = album.name
+        modalImageObj.value.imageUrl = album.image
+        
+        imageModalRef.value.show()
+    }
+
     // Сработает при запуске приложения
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
@@ -147,12 +155,12 @@
         await fetchGenres()
     })
 
-    function imageClick(album){
-        modalImageObj.value.name = album.name
-        modalImageObj.value.imageUrl = album.image
-        
-        imageModalRef.value.show()
-    }
+    watch(userInfo.isAuthenticated, () => {        
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
+    })
 
 </script>
 

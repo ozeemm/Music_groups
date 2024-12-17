@@ -1,9 +1,10 @@
 <script setup>
-    import { onBeforeMount, ref } from 'vue'
+    import { onBeforeMount, ref, watch } from 'vue'
     import axios from 'axios'
     import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import router from '@/router';
 
     import StatsPanel from '@/components/StatsPanel.vue';
 
@@ -60,6 +61,13 @@
     onBeforeMount(async () => {
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchGroups()
+    })
+
+    watch(userInfo.isAuthenticated, () => {        
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
     })
 
 </script>

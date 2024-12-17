@@ -1,9 +1,10 @@
 <script setup>
-    import { onBeforeMount, ref } from 'vue';
+    import { onBeforeMount, ref, watch } from 'vue';
     import axios from 'axios';
     import Cookies from 'js-cookie';
     import { storeToRefs } from 'pinia';
     import { useUserStore } from '@/stores/userStore';
+    import router from '@/router';
 
     const userStore = useUserStore()
     const userInfo = storeToRefs(userStore)
@@ -29,6 +30,11 @@
     }
 
     onBeforeMount(async () => {
+        if(!userInfo.isAuthenticated.value){
+            router.push("/login")
+            return
+        }
+
         isLoading.value = true
         axios.defaults.headers.common['X-CSRFToken'] = Cookies.get("csrftoken");
         await fetchStats()
